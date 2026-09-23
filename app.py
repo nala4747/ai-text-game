@@ -8,7 +8,7 @@ from PIL import Image
 # ==========================================
 # ⚠️ 这里填入你刚才复制的 Supabase 信息
 # ==========================================
-SUPABASE_URL = "https://gytwfzambyjutiwqoriv.supabase.co/rest/v1/"
+SUPABASE_URL = "https://gytwfzambyjutiwqoriv.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5dHdmemFtYnlqdXRpd3Fvcml2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNDc2MDYsImV4cCI6MjEwNTcyMzYwNn0.54rzjB0Ht7VZUOEwbiUdaJk6y3ElMUGgFqaRJl6ZWxs"
 # ==========================================
 
