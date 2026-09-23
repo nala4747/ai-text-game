@@ -2,13 +2,13 @@ import streamlit as st
 import docx
 import io
 from openai import OpenAI
+from PIL import Image
 
-# 👇 图标已经改为 😋
 st.set_page_config(page_title="Lewuwu", page_icon="😋", layout="centered")
 st.title("😋 Lewuwu")
 st.caption("⚠️ 声明：个人非盈利开源项目，仅供学习交流。AI生成内容不代表作者观点，请遵守法律法规。")
 
-# 注入自定义 CSS，实现高级聊天排版
+# 注入自定义 CSS，修复左右排版 + 高级聊天体验
 st.markdown("""
 <style>
     /* 1. AI 气泡（左侧）：透明背景 + 左侧竖线 */
@@ -21,6 +21,9 @@ st.markdown("""
         padding-bottom: 5px !important;
         margin-top: 15px !important;
         margin-bottom: 15px !important;
+        margin-right: auto !important; /* 强制靠左 */
+        width: fit-content !important;
+        max-width: 90% !important;
     }
     
     /* 2. AI 气泡里的【动作/神态/心理】用小字、灰色斜体显示 */
@@ -40,18 +43,21 @@ st.markdown("""
         margin-bottom: 5px !important;
     }
 
-    /* 4. 用户气泡（右侧）保持浅灰色气泡效果 */
+    /* 4. 用户气泡（右侧）浅灰色 + 强制靠右 */
     div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageAvatarUser"]) {
         background-color: #f0f2f6 !important;
         border-radius: 18px !important;
         padding: 10px 15px !important;
         margin-top: 10px !important;
         margin-bottom: 10px !important;
+        margin-left: auto !important; /* 强制靠右 */
+        width: fit-content !important;
+        max-width: 90% !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# 初始化多会话数据
+# 初始化数据
 if "sessions" not in st.session_state:
     st.session_state.sessions = {"默认对话": []}
 if "current_session" not in st.session_state:
@@ -61,7 +67,7 @@ if "uploader_key" not in st.session_state:
 if "user_avatar" not in st.session_state:
     st.session_state.user_avatar = "👤"
 if "ai_avatar" not in st.session_state:
-    st.session_state.ai_avatar = "😋" # AI默认头像也改一下
+    st.session_state.ai_avatar = "😋"
 if "ai_name" not in st.session_state:
     st.session_state.ai_name = "贺行枢"
 
@@ -95,15 +101,15 @@ with st.sidebar:
     upload_user_avatar = st.file_uploader("上传你的头像（可选）", type=["png", "jpg", "jpeg"])
     upload_ai_avatar = st.file_uploader("上传AI头像（可选）", type=["png", "jpg", "jpeg"])
     
+    # 使用 Image.open 修复头像报错
     if upload_user_avatar is not None:
-        st.session_state.user_avatar = upload_user_avatar.getvalue()
+        st.session_state.user_avatar = Image.open(io.BytesIO(upload_user_avatar.getvalue()))
     if upload_ai_avatar is not None:
-        st.session_state.ai_avatar = upload_ai_avatar.getvalue()
+        st.session_state.ai_avatar = Image.open(io.BytesIO(upload_ai_avatar.getvalue()))
 
     st.divider()
     st.subheader("📂 对话管理")
     
-    # 👇 自定义窗口名字功能
     custom_window_name = st.text_input("输入新窗口名称（可选）", key="new_window_name_input")
     
     if st.button("➕ 新建对话窗口"):
@@ -154,7 +160,6 @@ with st.sidebar:
             else:
                 doc_text = uploaded_file.getvalue().decode("utf-8")
             
-            # 👇 强制 AI 采用规定排版格式的系统提示词
             system_prompt = f"""你是一个沉浸式互动小说引擎，目前正在进行创意写作。
 请严格遵循以下文档中的设定、性格和规则，禁止说教，禁止跳出剧情。
 【设定文档】：
