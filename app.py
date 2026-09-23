@@ -5,6 +5,7 @@ from openai import OpenAI
 
 st.set_page_config(page_title="开源文游平台", page_icon="🎭", layout="centered")
 st.title("🎭 开源文字游戏")
+st.caption("⚠️ 声明：个人非盈利开源项目，仅供学习交流。AI生成内容不代表作者观点，请遵守法律法规。")
 st.caption("上传文档，即刻开演。")
 
 # 初始化多会话数据
@@ -131,9 +132,4 @@ if prompt := st.chat_input("输入你的行动或对白..."):
                 current_messages.append({"role": "assistant", "content": full_response})
             except Exception as e:
                 st.error(f"❌ 模型调用失败：{e}")
-    st.sidebar.markdown("---")
-    st.sidebar.caption("""
-    **声明**
-    本工具为个人非盈利开源项目，仅供学习交流使用。
-    AI生成内容不代表作者观点，请遵守法律法规，勿上传侵权或违规内容。
-    """)
+  
