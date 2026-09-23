@@ -21,7 +21,7 @@ st.markdown("""
         padding-bottom: 5px !important;
         margin-top: 15px !important;
         margin-bottom: 15px !important;
-        margin-right: auto !important; /* 强制靠左 */
+        margin-right: auto !important;
         width: fit-content !important;
         max-width: 90% !important;
     }
@@ -50,14 +50,14 @@ st.markdown("""
         padding: 10px 15px !important;
         margin-top: 10px !important;
         margin-bottom: 10px !important;
-        margin-left: auto !important; /* 强制靠右 */
+        margin-left: auto !important;
         width: fit-content !important;
         max-width: 90% !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# 初始化数据
+# 初始化多会话数据
 if "sessions" not in st.session_state:
     st.session_state.sessions = {"默认对话": []}
 if "current_session" not in st.session_state:
@@ -101,7 +101,6 @@ with st.sidebar:
     upload_user_avatar = st.file_uploader("上传你的头像（可选）", type=["png", "jpg", "jpeg"])
     upload_ai_avatar = st.file_uploader("上传AI头像（可选）", type=["png", "jpg", "jpeg"])
     
-    # 使用 Image.open 修复头像报错
     if upload_user_avatar is not None:
         st.session_state.user_avatar = Image.open(io.BytesIO(upload_user_avatar.getvalue()))
     if upload_ai_avatar is not None:
@@ -184,7 +183,9 @@ for message in current_messages:
         avatar_img = st.session_state.user_avatar if message["role"] == "user" else st.session_state.ai_avatar
         
         if message["role"] == "assistant":
-            with st.chat_message("assistant", avatar=avatar_img, name=st.session_state.ai_name):
+            # 👇 修复报错：去掉不兼容的 name= 参数，直接用HTML把名字写在头顶
+            with st.chat_message("assistant", avatar=avatar_img):
+                st.markdown(f"<div style='font-size:13px; color:#555; font-weight:bold; margin-bottom:5px;'>{st.session_state.ai_name}</div>", unsafe_allow_html=True)
                 st.markdown(message["content"])
         else:
             with st.chat_message("user", avatar=avatar_img):
@@ -204,7 +205,9 @@ if prompt := st.chat_input("输入你的行动或对白..."):
         
         client = OpenAI(api_key=user_api_key, base_url=base_url)
         
-        with st.chat_message("assistant", avatar=st.session_state.ai_avatar, name=st.session_state.ai_name):
+        # 👇 修复报错：同样在流式输出时去掉不兼容的 name= 参数
+        with st.chat_message("assistant", avatar=st.session_state.ai_avatar):
+            st.markdown(f"<div style='font-size:13px; color:#555; font-weight:bold; margin-bottom:5px;'>{st.session_state.ai_name}</div>", unsafe_allow_html=True)
             message_placeholder = st.empty()
             full_response = ""
             
